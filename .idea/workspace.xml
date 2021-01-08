@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3398fd83-124e-45a7-a755-5ac17d2360d5" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc.go" beforeDir="false" afterPath="$PROJECT_DIR$/doc.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/comments/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/examples/comments/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/composing/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/examples/composing/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/demo/demo.svg" beforeDir="false" afterPath="$PROJECT_DIR$/examples/demo/demo.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/demo/reddit.go" beforeDir="false" afterPath="$PROJECT_DIR$/examples/demo/reddit.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/stream_comment_replies/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/examples/stream_comment_replies/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/stream_comments/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/examples/stream_comments/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/stream_submissions/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/examples/stream_submissions/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/submissions/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/examples/submissions/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reddit.go" beforeDir="false" afterPath="$PROJECT_DIR$/reddit.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/streaming.go" beforeDir="false" afterPath="$PROJECT_DIR$/streaming.go" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="GOROOT" path="/usr/local/go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitToolBoxStore">
+    <option name="projectConfigVersion" value="2" />
+  </component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="false" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="dlft6j29" />
+  </component>
+  <component name="ProjectId" id="1mmV9nh6BgeDHjVAxvcucLZhS1I" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="go.sdk.automatically.set" value="true" />
+    <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VgoProject">
+    <integration-enabled>true</integration-enabled>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="755" y="393" width="400" height="327" key="#Go_Modules" timestamp="1610127763044">
+      <screen x="0" y="34" width="1920" height="1046" />
+    </state>
+    <state x="755" y="393" width="400" height="327" key="#Go_Modules/0.34.1920.1046@0.34.1920.1046" timestamp="1610127763044" />
+    <state x="652" y="235" width="615" height="644" key="find.popup" timestamp="1610127746674">
+      <screen x="0" y="34" width="1920" height="1046" />
+    </state>
+    <state x="652" y="235" width="615" height="644" key="find.popup/0.34.1920.1046@0.34.1920.1046" timestamp="1610127746674" />
+  </component>
+</project>

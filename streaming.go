@@ -3,7 +3,7 @@ package mira
 import (
 	"time"
 
-	"github.com/thecsw/mira/models"
+	"github.com/EnterMeme/mira/models"
 )
 
 // StreamCommentReplies streams comment replies
