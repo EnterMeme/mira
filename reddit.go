@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/thecsw/mira/models"
+	"github.com/EnterMeme/mira/models"
 )
 
 // Surely, Reddit API is always developing and I can't implement all endpoints.
