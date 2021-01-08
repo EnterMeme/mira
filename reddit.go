@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -40,6 +41,10 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 	if err != nil {
 		return nil, err
 	}
+
+	// added http logs
+	log.Printf("method [%s] endpoint [%s] response_code [%d]\n", method, target+values, response.StatusCode)
+
 	defer response.Body.Close()
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(response.Body)
