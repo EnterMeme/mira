@@ -28,11 +28,11 @@ func (r *Reddit) StreamCommentReplies() <-chan models.Comment {
 			sleepTime := float32(un.RateLimitRemaining) / float32(un.RateLimitReset)
 
 			// sleep time in millisecond in order to sleep for fractional seconds
-			// dividing the sleep time in half to increase/double the request throughput
+			// dividing the sleep time in third to increase the request throughput
 			sleepTimeMs := time.Duration(sleepTime * 1000) / 3
 
 			// logging for debugging purpose
-			log.Printf("sleeping for %d ms or %fs", sleepTimeMs, float32(sleepTimeMs) / 1000)
+			log.Printf("sleeping for %dms or %fs", sleepTimeMs, float32(sleepTimeMs) / 1000)
 
 			// sleeping for certain times
 			time.Sleep(sleepTimeMs * time.Millisecond)
