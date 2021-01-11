@@ -11,9 +11,14 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/EnterMeme/mira/models"
 )
+
+var count = 1
+var thisMinute = time.Now().Minute()
+var lastMinute = time.Now().Minute()
 
 // Surely, Reddit API is always developing and I can't implement all endpoints.
 // It will be a bit of a bloat. Instead, you have accessto *Reddit.MiraRequest
@@ -52,6 +57,25 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 	if err := findRedditError(data); err != nil {
 		return nil, err
 	}
+
+	/**
+	 * Log reddit hits curls with responses
+	 */
+	curlLine := "curl -X " + method + " -H 'User-Agent: " + c.Creds.UserAgent + "' -H 'Authorization: Bearer " + c.Token + "' " + "\"" + target + values + "\"\n"
+	StatusCodeString := fmt.Sprintf("%d", response.StatusCode)
+	fmt.Println(curlLine + "::" + StatusCodeString + "::" + string(data))
+
+	/**
+	 * Log quota tally
+	 */
+	count++
+	thisMinute := time.Now().Minute()
+	if thisMinute != lastMinute {
+		count = 1
+		lastMinute = thisMinute
+	}
+	quotaTallyLog := fmt.Sprintf("minute: %d count: %d", thisMinute, count)
+	fmt.Println(quotaTallyLog)
 
 	// get rate limit remaining from header
 	rateLimitRemaining, err := strconv.Atoi(response.Header.Get("x-ratelimit-remaining"))

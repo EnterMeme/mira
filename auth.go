@@ -4,6 +4,7 @@ import (
 	"bytes"
 	b64 "encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -64,6 +65,17 @@ func Authenticate(c *Credentials) (*Reddit, error) {
 	auth.Chain = make(chan *ChainVals, 32)
 	json.Unmarshal(data, &auth)
 	auth.Creds = *c
+
+	/**
+	 * Log the auth call
+	 */
+	curlLine := "curl -X POST -H 'User-Agent: " + c.UserAgent + "' -H 'Authorization: Basic " + encoded + "' " + auth_url
+	fmt.Println("login...")
+	fmt.Println("ClientId " + c.ClientId)
+	fmt.Println("ClientSecret " + c.ClientSecret)
+	fmt.Println(curlLine)
+	fmt.Println(strings.NewReader(form.Encode()))
+
 	return &auth, nil
 }
 
@@ -87,7 +99,7 @@ func (c *Reddit) update_creds() {
 // SetDefault sets all default values
 func (c *Reddit) SetDefault() {
 	c.Stream = Streaming{
-		CommentListInterval: 8,
+		CommentListInterval: 8, // <-- BOOKMARK
 		PostListInterval:    10,
 		PostListSlice:       25,
 	}
