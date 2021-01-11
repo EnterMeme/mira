@@ -18,3 +18,4 @@ func (ldc Comment) GetName() string              { return ldc.Data.Name }
 func (ldc Comment) GetKarma() float64            { return ldc.Data.Score }
 func (ldc Comment) GetUrl() string               { return ldc.Data.Permalink }
 func (ldc Comment) GetFlair() string             { return ldc.Data.Context }
+func (ldc Comment) IsBodyCommand() bool          { return len(ldc.Data.Body) > 0 && ldc.Data.Body[0] == '!' }

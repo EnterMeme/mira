@@ -8,6 +8,28 @@ import (
 
 // StreamCommentReplies streams comment replies
 // c is the channel with all unread messages
+func (r *Reddit) StreamBodyCommands() <-chan models.Comment {
+	c := make(chan models.Comment, 100)
+	go func() {
+		for {
+			un, _ := r.Me().ListUnreadMessages()
+			for _, v := range un {
+				if v.IsBodyCommand() {
+					// Only process comment replies and
+					// mark them as read.
+					c <- v
+					// You can read the message with
+					r.Me().ReadMessage(v.GetId())
+				}
+			}
+			time.Sleep(r.Stream.CommentListInterval * time.Second)
+		}
+	}()
+	return c
+}
+
+// StreamCommentReplies streams comment replies
+// c is the channel with all unread messages
 func (r *Reddit) StreamCommentReplies() <-chan models.Comment {
 	c := make(chan models.Comment, 100)
 	go func() {
