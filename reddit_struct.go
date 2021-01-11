@@ -1,6 +1,7 @@
 package mira
 
 import (
+	"github.com/EnterMeme/mira/models"
 	"net/http"
 	"time"
 )
@@ -34,4 +35,16 @@ type RedditVals struct {
 type ChainVals struct {
 	Name string
 	Type string
+}
+
+type Response struct {
+	Data                []byte
+	XRateLimitRemaining int
+	XRateLimitReset     int
+}
+
+type ListUnreadResponse struct {
+	Comments            []models.Comment
+	XRateLimitRemaining int
+	XRateLimitReset     int
 }

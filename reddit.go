@@ -24,7 +24,7 @@ import (
 //   func (c *Reddit) MiraRequest(method string, target string, payload map[string]string) ([]byte, error) {...}
 //
 // It is pretty straight-forward. The return is a slice of bytes. Parse it yourself.
-func (c *Reddit) MiraRequest(method string, target string, payload map[string]string) ([]byte, error) {
+func (c *Reddit) MiraRequest(method string, target string, payload map[string]string) (*Response, error) {
 	values := "?"
 	for i, v := range payload {
 		v = url.QueryEscape(v)
@@ -52,7 +52,24 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 	if err := findRedditError(data); err != nil {
 		return nil, err
 	}
-	return data, nil
+
+	// get rate limit remaining from header
+	rateLimitRemaining, err := strconv.Atoi(response.Header.Get("x-ratelimit-remaining"))
+	if err != nil {
+		return nil, err
+	}
+
+	// get rate limit reset
+	rateLimitReset, err := strconv.Atoi(response.Header.Get("x-ratelimit-reset"))
+	if err != nil {
+		return nil, err
+	}
+
+	return &Response{
+		Data:                data,
+		XRateLimitRemaining: rateLimitRemaining,
+		XRateLimitReset:     rateLimitReset,
+	}, nil
 }
 
 // Me pushes a new Redditor value
@@ -184,7 +201,7 @@ func (c *Reddit) getMe() (models.Me, error) {
 	if err != nil {
 		return *ret, err
 	}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	return *ret, nil
 }
 
@@ -193,8 +210,13 @@ func (c *Reddit) getSubmission(id string) (models.PostListingChild, error) {
 	ans, err := c.MiraRequest("GET", target, map[string]string{
 		"id": id,
 	})
+
+	if err != nil {
+		return models.PostListingChild{}, err
+	}
+
 	ret := &models.PostListing{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	if len(ret.GetChildren()) < 1 {
 		return models.PostListingChild{}, fmt.Errorf("id not found")
 	}
@@ -206,8 +228,13 @@ func (c *Reddit) getComment(id string) (models.Comment, error) {
 	ans, err := c.MiraRequest("GET", target, map[string]string{
 		"id": id,
 	})
+
+	if err != nil {
+		return models.Comment{}, err
+	}
+
 	ret := &models.CommentListing{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	if len(ret.GetChildren()) < 1 {
 		return models.Comment{}, fmt.Errorf("id not found")
 	}
@@ -256,7 +283,7 @@ func (c *Reddit) Root() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		json.Unmarshal(ans, &temp)
+		json.Unmarshal(ans.Data, &temp)
 		if len(temp.Data.Children) < 1 {
 			return "", errors.New("could not find the requested comment")
 		}
@@ -272,16 +299,24 @@ func (c *Reddit) Root() (string, error) {
 func (c *Reddit) getUser(name string) (models.Redditor, error) {
 	target := RedditOauth + "/user/" + name + "/about"
 	ans, err := c.MiraRequest("GET", target, nil)
+	if err != nil {
+		return models.Redditor{}, err
+	}
+
 	ret := &models.Redditor{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	return *ret, err
 }
 
 func (c *Reddit) getSubreddit(name string) (models.Subreddit, error) {
 	target := RedditOauth + "/r/" + name + "/about"
 	ans, err := c.MiraRequest("GET", target, nil)
+	if err != nil {
+		return models.Subreddit{}, err
+	}
+
 	ret := &models.Subreddit{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	return *ret, err
 }
 
@@ -291,8 +326,12 @@ func (c *Reddit) getRedditorPosts(user string, sort string, tdur string, limit i
 		"limit": strconv.Itoa(limit),
 		"t":     tdur,
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	ret := &models.PostListing{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	return ret.GetChildren(), err
 }
 
@@ -302,8 +341,12 @@ func (c *Reddit) getRedditorPostsAfter(user string, last string, limit int) ([]m
 		"limit":  strconv.Itoa(limit),
 		"before": last,
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	ret := &models.PostListing{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	return ret.GetChildren(), err
 }
 
@@ -313,8 +356,12 @@ func (c *Reddit) getSubredditPosts(sr string, sort string, tdur string, limit in
 		"limit": strconv.Itoa(limit),
 		"t":     tdur,
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	ret := &models.PostListing{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	return ret.GetChildren(), err
 }
 
@@ -325,8 +372,12 @@ func (c *Reddit) getSubredditComments(sr string, sort string, tdur string, limit
 		"limit": strconv.Itoa(limit),
 		"t":     tdur,
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	ret := &models.CommentListing{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	return ret.GetChildren(), err
 }
 
@@ -337,8 +388,12 @@ func (c *Reddit) getRedditorComments(user string, sort string, tdur string, limi
 		"limit": strconv.Itoa(limit),
 		"t":     tdur,
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	ret := &models.CommentListing{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	return ret.GetChildren(), err
 }
 
@@ -349,8 +404,12 @@ func (c *Reddit) getRedditorCommentsAfter(user string, sort string, last string,
 		"limit":  strconv.Itoa(limit),
 		"before": last,
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	ret := &models.CommentListing{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	return ret.GetChildren(), err
 }
 
@@ -369,7 +428,7 @@ func (c *Reddit) getSubmissionComments(post_id string, sort string, tdur string,
 		return nil, nil, err
 	}
 	temp := make([]models.CommentListing, 0, 8)
-	json.Unmarshal(ans, &temp)
+	json.Unmarshal(ans.Data, &temp)
 	ret := make([]models.Comment, 0, 8)
 	for _, v := range temp {
 		comments := v.GetChildren()
@@ -389,8 +448,12 @@ func (c *Reddit) getSubredditPostsAfter(sr string, last string, limit int) ([]mo
 		"limit":  strconv.Itoa(limit),
 		"before": last,
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	ret := &models.PostListing{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	return ret.GetChildren(), err
 }
 
@@ -401,8 +464,12 @@ func (c *Reddit) getSubredditCommentsAfter(sr string, sort string, last string, 
 		"limit":  strconv.Itoa(limit),
 		"before": last,
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	ret := &models.CommentListing{}
-	json.Unmarshal(ans, ret)
+	json.Unmarshal(ans.Data, ret)
 	return ret.GetChildren(), err
 }
 
@@ -422,7 +489,11 @@ func (c *Reddit) Submit(title string, text string) (models.Submission, error) {
 		"resubmit": "true",
 		"api_type": "json",
 	})
-	json.Unmarshal(ans, ret)
+	if err != nil {
+		return models.Submission{}, err
+	}
+
+	json.Unmarshal(ans.Data, ret)
 	return *ret, err
 }
 
@@ -439,7 +510,11 @@ func (c *Reddit) Reply(text string) (models.CommentWrap, error) {
 		"thing_id": name,
 		"api_type": "json",
 	})
-	json.Unmarshal(ans, ret)
+	if err != nil {
+		return models.CommentWrap{}, err
+	}
+
+	json.Unmarshal(ans.Data, ret)
 	return *ret, err
 }
 
@@ -452,7 +527,11 @@ func (c *Reddit) ReplyWithID(name, text string) (models.CommentWrap, error) {
 		"thing_id": name,
 		"api_type": "json",
 	})
-	json.Unmarshal(ans, ret)
+	if err != nil {
+		return models.CommentWrap{}, err
+	}
+
+	json.Unmarshal(ans.Data, ret)
 	return *ret, err
 }
 
@@ -469,7 +548,11 @@ func (c *Reddit) Save(text string) (models.CommentWrap, error) {
 		"thing_id": name,
 		"api_type": "json",
 	})
-	json.Unmarshal(ans, ret)
+	if err != nil {
+		return models.CommentWrap{}, nil
+	}
+
+	json.Unmarshal(ans.Data, ret)
 	return *ret, err
 }
 
@@ -482,7 +565,11 @@ func (c *Reddit) SaveWithID(name, text string) (models.CommentWrap, error) {
 		"thing_id": name,
 		"api_type": "json",
 	})
-	json.Unmarshal(ans, ret)
+	if err != nil {
+		return models.CommentWrap{}, err
+	}
+
+	json.Unmarshal(ans.Data, ret)
 	return *ret, err
 }
 
@@ -545,7 +632,11 @@ func (c *Reddit) Edit(text string) (models.CommentWrap, error) {
 		"thing_id": name,
 		"api_type": "json",
 	})
-	json.Unmarshal(ans, ret)
+	if err != nil {
+		return models.CommentWrap{}, nil
+	}
+
+	json.Unmarshal(ans.Data, ret)
 	return *ret, err
 }
 
@@ -590,7 +681,7 @@ func (c *Reddit) ReadAllMessages() error {
 }
 
 // ListUnreadMessages returns a list of all unread messages
-func (c *Reddit) ListUnreadMessages() ([]models.Comment, error) {
+func (c *Reddit) ListUnreadMessages() (*ListUnreadResponse, error) {
 	_, _, err := c.checkType("me")
 	if err != nil {
 		return nil, err
@@ -599,9 +690,17 @@ func (c *Reddit) ListUnreadMessages() ([]models.Comment, error) {
 	ans, err := c.MiraRequest("GET", target, map[string]string{
 		"mark": "false",
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	ret := &models.CommentListing{}
-	json.Unmarshal(ans, ret)
-	return ret.GetChildren(), err
+	json.Unmarshal(ans.Data, ret)
+	return &ListUnreadResponse{
+		Comments:            ret.GetChildren(),
+		XRateLimitRemaining: ans.XRateLimitRemaining,
+		XRateLimitReset:     ans.XRateLimitReset,
+	}, err
 }
 
 // UpdateSidebar updates subreddit's sidebar. Needs mod privileges

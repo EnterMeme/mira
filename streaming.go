@@ -1,6 +1,7 @@
 package mira
 
 import (
+	"log"
 	"time"
 
 	"github.com/EnterMeme/mira/models"
@@ -13,7 +14,7 @@ func (r *Reddit) StreamCommentReplies() <-chan models.Comment {
 	go func() {
 		for {
 			un, _ := r.Me().ListUnreadMessages()
-			for _, v := range un {
+			for _, v := range un.Comments {
 				if v.IsCommentReply() {
 					// Only process comment replies and
 					// mark them as read.
@@ -22,7 +23,13 @@ func (r *Reddit) StreamCommentReplies() <-chan models.Comment {
 					r.Me().ReadMessage(v.GetId())
 				}
 			}
-			time.Sleep(r.Stream.CommentListInterval * time.Second)
+
+			// calculating sleep time based on quota
+			sleepTime := un.XRateLimitRemaining / un.XRateLimitReset
+
+			log.Printf("sleeping for %ds", sleepTime)
+
+			time.Sleep(time.Duration(sleepTime) * time.Second)
 		}
 	}()
 	return c
@@ -35,7 +42,7 @@ func (r *Reddit) StreamMentions() <-chan models.Comment {
 	go func() {
 		for {
 			un, _ := r.Me().ListUnreadMessages()
-			for _, v := range un {
+			for _, v := range un.Comments {
 				if v.IsMention() {
 					// Only process comment replies and
 					// mark them as read.
