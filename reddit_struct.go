@@ -38,13 +38,13 @@ type ChainVals struct {
 }
 
 type Response struct {
-	Data                []byte
-	XRateLimitRemaining int
-	XRateLimitReset     int
+	Data               []byte
+	RateLimitRemaining int
+	RateLimitReset     int
 }
 
 type ListUnreadResponse struct {
-	Comments            []models.Comment
-	XRateLimitRemaining int
-	XRateLimitReset     int
+	Comments           []models.Comment
+	RateLimitRemaining int
+	RateLimitReset     int
 }

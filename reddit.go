@@ -78,7 +78,7 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 	fmt.Println(quotaTallyLog)
 
 	// get rate limit remaining from header
-	rateLimitRemaining, err := strconv.Atoi(response.Header.Get("x-ratelimit-remaining"))
+	rateLimitRemaining, err := strconv.ParseFloat(response.Header.Get("x-ratelimit-remaining"), 32)
 	if err != nil {
 		return nil, err
 	}
@@ -90,9 +90,9 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 	}
 
 	return &Response{
-		Data:                data,
-		XRateLimitRemaining: rateLimitRemaining,
-		XRateLimitReset:     rateLimitReset,
+		Data:               data,
+		RateLimitRemaining: int(rateLimitRemaining),
+		RateLimitReset:     rateLimitReset,
 	}, nil
 }
 
@@ -721,9 +721,9 @@ func (c *Reddit) ListUnreadMessages() (*ListUnreadResponse, error) {
 	ret := &models.CommentListing{}
 	json.Unmarshal(ans.Data, ret)
 	return &ListUnreadResponse{
-		Comments:            ret.GetChildren(),
-		XRateLimitRemaining: ans.XRateLimitRemaining,
-		XRateLimitReset:     ans.XRateLimitReset,
+		Comments:           ret.GetChildren(),
+		RateLimitRemaining: ans.RateLimitRemaining,
+		RateLimitReset:     ans.RateLimitReset,
 	}, err
 }
 

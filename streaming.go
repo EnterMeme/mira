@@ -25,11 +25,17 @@ func (r *Reddit) StreamCommentReplies() <-chan models.Comment {
 			}
 
 			// calculating sleep time based on quota
-			sleepTime := un.XRateLimitRemaining / un.XRateLimitReset
+			sleepTime := float32(un.RateLimitRemaining) / float32(un.RateLimitReset)
 
-			log.Printf("sleeping for %ds", sleepTime)
+			// sleep time in millisecond in order to sleep for fractional seconds
+			// dividing the sleep time in half to increase/double the request throughput
+			sleepTimeMs := time.Duration(sleepTime * 1000) / 3
 
-			time.Sleep(time.Duration(sleepTime) * time.Second)
+			// logging for debugging purpose
+			log.Printf("sleeping for %d ms or %fs", sleepTimeMs, float32(sleepTimeMs) / 1000)
+
+			// sleeping for certain times
+			time.Sleep(sleepTimeMs * time.Millisecond)
 		}
 	}()
 	return c
