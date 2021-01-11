@@ -16,9 +16,18 @@ import (
 	"github.com/EnterMeme/mira/models"
 )
 
+/**
+ * Temporary for tracking the requests per minute. Quota exploration
+ */
 var count = 1
 var thisMinute = time.Now().Minute()
 var lastMinute = time.Now().Minute()
+
+/**
+ * Reddit response headers for rate quota
+ */
+var rateLimitRemaining = 600
+var rateLimitReset = 600
 
 // Surely, Reddit API is always developing and I can't implement all endpoints.
 // It will be a bit of a bloat. Instead, you have accessto *Reddit.MiraRequest
@@ -30,6 +39,12 @@ var lastMinute = time.Now().Minute()
 //
 // It is pretty straight-forward. The return is a slice of bytes. Parse it yourself.
 func (c *Reddit) MiraRequest(method string, target string, payload map[string]string) (*Response, error) {
+
+	/**
+	 * Sleep
+	 */
+	quotaSleep(target)
+
 	values := "?"
 	for i, v := range payload {
 		v = url.QueryEscape(v)
@@ -58,15 +73,32 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 		return nil, err
 	}
 
+	// get rate limit remaining from header
+	rateLimitRemainingReddit, err := strconv.ParseFloat(response.Header.Get("x-ratelimit-remaining"), 32)
+	if err != nil {
+		return nil, err
+	}
+
+	// get rate limit reset
+	rateLimitResetReddit, err := strconv.Atoi(response.Header.Get("x-ratelimit-reset"))
+	if err != nil {
+		return nil, err
+	}
+
+	// set in globals to use next request
+	rateLimitReset = rateLimitResetReddit
+	rateLimitRemaining = int(rateLimitRemainingReddit)
+
+
 	/**
-	 * Log reddit hits curls with responses
+	 * Log reddit hits curls with responses. Temporary
 	 */
 	curlLine := "curl -X " + method + " -H 'User-Agent: " + c.Creds.UserAgent + "' -H 'Authorization: Bearer " + c.Token + "' " + "\"" + target + values + "\"\n"
 	StatusCodeString := fmt.Sprintf("%d", response.StatusCode)
-	fmt.Println(curlLine + "::" + StatusCodeString + "::" + string(data))
+	log.Println(curlLine + "::" + StatusCodeString)
 
 	/**
-	 * Log quota tally
+	 * Log quota tally. Temporary
 	 */
 	count++
 	thisMinute := time.Now().Minute()
@@ -74,26 +106,40 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 		count = 1
 		lastMinute = thisMinute
 	}
-	quotaTallyLog := fmt.Sprintf("minute: %d count: %d", thisMinute, count)
-	fmt.Println(quotaTallyLog)
+	log.Printf("minute: %d count: %d rateLimitRemaining: %d rateLimitReset: %d", thisMinute, count, int(rateLimitRemaining), int(rateLimitReset))
 
-	// get rate limit remaining from header
-	rateLimitRemaining, err := strconv.ParseFloat(response.Header.Get("x-ratelimit-remaining"), 32)
-	if err != nil {
-		return nil, err
-	}
-
-	// get rate limit reset
-	rateLimitReset, err := strconv.Atoi(response.Header.Get("x-ratelimit-reset"))
-	if err != nil {
-		return nil, err
-	}
 
 	return &Response{
 		Data:               data,
 		RateLimitRemaining: int(rateLimitRemaining),
 		RateLimitReset:     rateLimitReset,
 	}, nil
+}
+
+// 
+/**
+ * Sleep using data from quota headers in reddit return
+ *
+ * @param String target The endpoint of the reddit api being hit. Used to ensure minimum scrape sleep is 1s
+ * @return void
+ */
+func quotaSleep(target string) {
+	// calculating sleep time based on quota
+	sleepTime := float32(rateLimitReset) / float32(rateLimitRemaining)
+
+	// sleep time in millisecond in order to sleep for fractional seconds
+	sleepTimeMs := time.Duration(sleepTime * 1000)
+
+	// if this is a scrape call, make minimum sleep 1 second
+	if (strings.Contains(target, "/message/unread")) && (float32(sleepTimeMs) < 1000){
+		sleepTimeMs = 1000
+	}
+
+	// logging for debugging purpose
+	log.Printf("sleeping for %d ms or %fs", sleepTimeMs, float32(sleepTimeMs) / 1000)
+
+	// sleeping for certain times
+	time.Sleep(sleepTimeMs * time.Millisecond)
 }
 
 // Me pushes a new Redditor value
