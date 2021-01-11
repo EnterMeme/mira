@@ -13,3 +13,10 @@ login.conf
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 .idea
+
+# vim stuff
+tags
+tags.lock
+*.swp
+.notags
+
