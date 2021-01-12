@@ -89,11 +89,10 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 	rateLimitReset = rateLimitResetReddit
 	rateLimitRemaining = int(rateLimitRemainingReddit)
 
-
 	/**
 	 * Log reddit hits curls with responses. Temporary
 	 */
-	curlLine := "curl -X " + method + " -H 'User-Agent: " + c.Creds.UserAgent + "' -H 'Authorization: Bearer " + c.Token + "' " + "\"" + target + values + "\"\n"
+	curlLine := "curl -X " + method + " -H 'User-Agent: " + c.Creds.UserAgent[1:len(c.Creds.UserAgent)-1] + "' -H 'Authorization: Bearer " + c.Token + "' " + "\"" + target + values + "\"\n"
 	StatusCodeString := fmt.Sprintf("%d", response.StatusCode)
 	log.Println(curlLine + "::" + StatusCodeString)
 
@@ -108,7 +107,6 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 	}
 	log.Printf("minute: %d count: %d rateLimitRemaining: %d rateLimitReset: %d", thisMinute, count, int(rateLimitRemaining), int(rateLimitReset))
 
-
 	return &Response{
 		Data:               data,
 		RateLimitRemaining: int(rateLimitRemaining),
@@ -116,7 +114,7 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 	}, nil
 }
 
-// 
+//
 /**
  * Sleep using data from quota headers in reddit return
  *
@@ -131,12 +129,12 @@ func quotaSleep(target string) {
 	sleepTimeMs := time.Duration(sleepTime * 1000)
 
 	// if this is a scrape call, make minimum sleep 1 second
-	if (strings.Contains(target, "/message/unread")) && (float32(sleepTimeMs) < 1000){
+	if (strings.Contains(target, "/message/unread")) && (float32(sleepTimeMs) < 1000) {
 		sleepTimeMs = 1000
 	}
 
 	// logging for debugging purpose
-	log.Printf("sleeping for %d ms or %fs", sleepTimeMs, float32(sleepTimeMs) / 1000)
+	log.Printf("sleeping for %d ms or %fs", sleepTimeMs, float32(sleepTimeMs)/1000)
 
 	// sleeping for certain times
 	time.Sleep(sleepTimeMs * time.Millisecond)
