@@ -62,9 +62,6 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 		return nil, err
 	}
 
-	// added http logs
-	log.Printf("method [%s] endpoint [%s] response_code [%d]\n", method, target+values, response.StatusCode)
-
 	defer response.Body.Close()
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(response.Body)
@@ -89,11 +86,10 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 	rateLimitReset = rateLimitResetReddit
 	rateLimitRemaining = int(rateLimitRemainingReddit)
 
-
 	/**
 	 * Log reddit hits curls with responses. Temporary
 	 */
-	curlLine := "curl -X " + method + " -H 'User-Agent: " + c.Creds.UserAgent[1 : len(c.Creds.UserAgent)-1]  + "' -H 'Authorization: Bearer " + c.Token + "' " + "\"" + target + values + "\""
+	curlLine := "REST: curl -X " + method + " -H 'User-Agent: " + c.Creds.UserAgent[1:len(c.Creds.UserAgent)-1] + "' -H 'Authorization: Bearer " + c.Token + "' " + "\"" + target + values + "\" :: " + response.StatusCode
 	log.Println(curlLine)
 
 	/**
@@ -107,7 +103,6 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 	}
 	log.Printf("minute: %d count: %d rateLimitRemaining: %d rateLimitReset: %d", thisMinute, count, int(rateLimitRemaining), int(rateLimitReset))
 
-
 	return &Response{
 		Data:               data,
 		RateLimitRemaining: int(rateLimitRemaining),
@@ -115,7 +110,7 @@ func (c *Reddit) MiraRequest(method string, target string, payload map[string]st
 	}, nil
 }
 
-// 
+//
 /**
  * Sleep using data from quota headers in reddit return
  *
@@ -130,18 +125,18 @@ func quotaSleep(target string) {
 	sleepTimeMs := time.Duration(sleepTime * 1000)
 
 	// if this is a scrape call, make minimum sleep 1 second
-	if (strings.Contains(target, "/message/unread")) && (float32(sleepTimeMs) < 3000){
+	if (strings.Contains(target, "/message/unread")) && (float32(sleepTimeMs) < 3000) {
 		//sleepTimeMs = 3000
 		sleepTimeMs = time.Duration(3000)
 	}
 
 	// if we have 1 or 0 remaining requests in the quota, sleep until it resets
-	if (int(rateLimitRemaining) < 2) {
+	if int(rateLimitRemaining) < 2 {
 		sleepTimeMs = time.Duration(1000 * rateLimitReset)
 	}
 
 	// logging for debugging purpose
-	log.Printf("sleeping for %d ms or %fs", sleepTimeMs, float32(sleepTimeMs) / 1000)
+	log.Printf("sleeping for %d ms or %fs", sleepTimeMs, float32(sleepTimeMs)/1000)
 
 	// sleeping for certain times
 	time.Sleep(sleepTimeMs * time.Millisecond)

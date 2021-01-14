@@ -71,8 +71,6 @@ func Authenticate(c *Credentials) (*Reddit, error) {
 	 */
 	curlLine := "curl -X POST -H 'User-Agent: " + c.UserAgent + "' -H 'Authorization: Basic " + encoded + "' " + auth_url
 	fmt.Println("login...")
-	fmt.Println("ClientId " + c.ClientId)
-	fmt.Println("ClientSecret " + c.ClientSecret)
 	fmt.Println(curlLine)
 	fmt.Println(strings.NewReader(form.Encode()))
 

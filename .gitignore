@@ -17,6 +17,8 @@ login.conf
 # vim stuff
 tags
 tags.lock
-*.swp
 .notags
+
+# backups
+*.swp
 
